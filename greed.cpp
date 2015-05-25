@@ -86,17 +86,16 @@ std::vector<Room> create_area()
     // TODO: Generate areas from an external source, e.g. an SQLite DB-file.
     std::vector<Room> area(3);
 
-    std::unique_ptr<Item> sword(new Item);
-    // std::unique_ptr<Item> sword = std::make_unique<Item>(); // C++14
+    auto sword = std::make_unique<Item>(); // C++14
     sword->name = "A golden sword.";
 
-    std::unique_ptr<Item> boat(new Item);
+    auto boat = std::make_unique<Item>();
     boat->name = "A boat.";
 
-    std::unique_ptr<Creature> wolf(new Creature);
+    auto wolf = std::make_unique<Creature>();
     wolf->name = "A fierce wolf.";
 
-    std::unique_ptr<Creature> tussy(new Creature);
+    auto tussy = std::make_unique<Creature>();
     tussy->name = "It's Tusselita.";
 
     Room& arrival = area[0];
