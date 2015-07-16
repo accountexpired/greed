@@ -68,7 +68,6 @@ static void init_ncurses()
 
 int main(void)
 {
-    int ch;
     std::string kbdInput;
     std::vector<Room> area = create_area();
     Room *currentRoom = &area[0];
@@ -89,6 +88,8 @@ int main(void)
             start = std::chrono::steady_clock::now();
             printw("Tick! Tock!\n");
         }
+
+        int ch;
 
         // Handle user input without blocking.
         if ((ch = getch()) != ERR)
