@@ -12,9 +12,8 @@ Output::~Output()
     std::cout << "Destroying blink!" << std::endl;
 }
 
-Output::Output(std::string newOutput)
+Output::Output(std::string newOutput) : message(newOutput)
 {
-    message = newOutput;
 }
 
 void Output::exec() const
