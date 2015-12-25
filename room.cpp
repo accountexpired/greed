@@ -32,14 +32,22 @@ void Room::display() const
 
     // Display exits from the room.
     printw("Exits: ");
-    for (std::map<std::string, Room *>::const_iterator exit = exits.begin();
-         exit != exits.end(); ++exit)
+
+    auto exit = exits.begin();
+
+    if (exit == exits.end())
     {
-        printw("%s", exit->first.c_str());
-        if (std::distance(exit, exits.end()) > 1)
+        printw("None");
+    } else
+    {
+        for (; exit != exits.end(); ++exit)
         {
-            printw(", ");
+            printw("%s", exit->first.c_str());
+            if (std::distance(exit, exits.end()) > 1)
+            {
+                printw(", ");
+            }
         }
     }
-    printw(".\n");
+    printw("\n");
 }
