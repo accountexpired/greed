@@ -3,8 +3,7 @@
 
 #include "item.h"
 
-class Creature {
-public:
+struct Creature {
     std::string name;
     std::string desc;
     std::vector<std::unique_ptr<Item>> items;
