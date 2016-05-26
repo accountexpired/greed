@@ -18,6 +18,55 @@ static std::vector<Room *> create_area()
     // TODO: Generate areas from an external source, e.g. an SQLite DB-file.
     std::vector<Room *> area;
 
+    auto arrival = new Room();
+    arrival->desc = "It's dark. You try to blink, but it makes no difference.";
+
+    auto move = new Output("You try to move, but you bump your nose into some glass that\n"
+                            "prevents you from moving any further.\n");
+
+    arrival->actions["north"] = move;
+    arrival->actions["south"] = move;
+    arrival->actions["east"] = move;
+    arrival->actions["west"] = move;
+
+    auto search = new Output("You search around. Your arms feel numb. You find nothing.\n");
+
+    arrival->actions["search"] = search;
+
+    auto say = new Output("You emit a sound that resembles a wounded animal.\n"
+                          "No eligible word comes out.\n");
+
+    arrival->actions["say"] = say;
+
+    auto knock = new Output("You manage to knock on the glass despite the lack of space.\n"
+                            "Nothing happens.\n");
+
+    arrival->actions["knock"] = knock;
+
+    auto help = new Output("You cry for help, but the voice you hear sounds strange and rough.\n"
+                           "After several attemps, the word 'help' makes sense.\n"
+                           "\n"
+                           "You hear a beeping sound, followed by a click.\n"
+                           "\n"
+                           "The door in front of you changes and fresh air rushes to your face.\n"
+                           "Relieved, you fall on your knees and cough several times.\n");
+
+    arrival->actions["help"] = help;
+    arrival->actions["scream"] = help;
+    arrival->actions["yell"] = help;
+
+    // Add rooms to the area.
+    area.push_back(arrival);
+
+    return area;
+}
+
+/*
+static std::vector<Room *> create_area_2()
+{
+    // TODO: Generate areas from an external source, e.g. an SQLite DB-file.
+    std::vector<Room *> area;
+
     auto sword = std::make_unique<Item>();
     sword->name = "A golden sword.";
 
@@ -51,6 +100,7 @@ static std::vector<Room *> create_area()
 
     return area;
 }
+*/
 
 static void init_ncurses()
 {
@@ -70,7 +120,7 @@ static void init_ncurses()
 
 int main(void)
 {
-    std::string kbdInput;
+    std::string kbd_input;
     std::vector<Room *> area = create_area();
     Room *currentRoom = area[0];
 
@@ -88,35 +138,35 @@ int main(void)
         if ((std::chrono::steady_clock::now() - start) > tick)
         {
             start = std::chrono::steady_clock::now();
-            printw("Tick! Tock!\n");
+            //printw("Tick! Tock!\n");
         }
 
-        int inputChar;
+        int input_char;
 
         // Handle user input without blocking.
-        if ((inputChar = getch()) != ERR)
+        if ((input_char = getch()) != ERR)
         {
-            if (inputChar == '\n')
+            if (input_char == '\n')
             {
-                if (currentRoom->exits.find(kbdInput) != currentRoom->exits.end())
-                {
-                    currentRoom = currentRoom->exits[kbdInput];
-                    currentRoom->display();
-                }
-                else if (currentRoom->actions.find(kbdInput) != currentRoom->actions.end())
+                if (currentRoom->actions.find(kbd_input) != currentRoom->actions.end())
                 {
                     // Perform the requested action.
-                    currentRoom->actions[kbdInput]->exec();
+                    currentRoom->actions[kbd_input]->exec();
+                }
+                else if (currentRoom->exits.find(kbd_input) != currentRoom->exits.end())
+                {
+                    currentRoom = currentRoom->exits[kbd_input];
+                    currentRoom->display();
                 } else
                 {
                     printw("What?\n");
                 }
 
                 printw("> ");
-                kbdInput.clear();
+                kbd_input.clear();
             } else
             {
-            kbdInput.push_back(inputChar);
+            kbd_input.push_back(input_char);
             }
         }
     }

@@ -37,7 +37,7 @@ void Room::display() const
 
     if (exit == exits.end())
     {
-        printw("None");
+        printw("None.");
     } else
     {
         for (; exit != exits.end(); ++exit)
