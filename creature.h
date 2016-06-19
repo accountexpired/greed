@@ -3,7 +3,7 @@
 
 #include "item.h"
 
-struct Creature {
+struct Creature final {
     std::string name;
     std::string desc;
     std::vector<std::unique_ptr<Item>> items;

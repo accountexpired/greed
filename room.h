@@ -3,14 +3,20 @@
 
 #include "action.h"
 
-class Room {
+class Room final {
+private:
+    void display() const;
+
 public:
     std::string desc;
     std::map<std::string, Room *> exits;
     std::map<std::string, Action *> actions;
     std::vector<std::unique_ptr<Item>> items;
     std::vector<std::unique_ptr<Creature>> creatures;
-    void display() const;
+
+    void perform_action(const std::string& kbd_input, bool& valid_input) const;
+    Room* next_room(const std::string& kbd_input, bool& valid_input);
+    void enter() const;
 };
 
 #endif

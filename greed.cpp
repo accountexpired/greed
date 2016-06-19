@@ -15,21 +15,137 @@
 
 static std::vector<Room *> create_area()
 {
+    std::vector<Room *> area;
+
+    // This is a special room. Regardless of what you type here,
+    // it'll be considered a valid action. When you've performed
+    // a certain number of actions, you'll leave the room.
+    auto capsule = new Room();
+    capsule->desc = "It's dark. You try to blink, but nothing happens.";
+
+    auto medical_bay1 = new Room();
+    medical_bay1->desc = "You find yourself in the medical bay of a large vessel.";
+
+    auto medical_bay2 = new Room();
+    medical_bay2->desc = "You find yourself in the medical bay of a large vessel.\n"
+                         "The wast hallway continues to the north of here.";
+
+    medical_bay1->exits["n"] = medical_bay2;
+    medical_bay2->exits["s"] = medical_bay1;
+
+    // Add rooms to area.
+    area.push_back(capsule);
+    area.push_back(medical_bay1);
+    area.push_back(medical_bay2);
+
+    return area;
+}
+
+static void init_ncurses()
+{
+    initscr();
+
+    // When we reach the bottom of the screen, the existing text
+    // should scroll upwards, just like on a real terminal.
+    scrollok(stdscr, TRUE);
+
+    // Enable non-blocking input.
+    nodelay(stdscr, TRUE);
+
+    start_color();
+    init_pair(1, COLOR_RED, COLOR_BLACK);
+    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+}
+
+int main()
+{
+    std::string kbd_input;
+    std::vector<Room *> area = create_area();
+    Room *current_room = area[0];
+
+    init_ncurses();
+
+    current_room->enter();
+    printw("> ");
+
+    auto start = std::chrono::steady_clock::now();
+    std::chrono::seconds tick(2); // Each tick should last two seconds.
+
+    while (true)
+    {
+        // Handle all timed events, such as combat.
+        if ((std::chrono::steady_clock::now() - start) > tick)
+        {
+            start = std::chrono::steady_clock::now();
+            // printw("Tick! Tock!\n");
+        }
+
+        int input_char;
+
+        // Handle user input without blocking.
+        if ((input_char = getch()) != ERR)
+        {
+            if (input_char == '\n')
+            {
+                bool valid_input = false;
+
+                // Execute action.
+                current_room->perform_action(kbd_input, valid_input);
+
+                // Enter room.
+                current_room = current_room->next_room(kbd_input, valid_input);
+
+                if (valid_input)
+                {
+                    current_room->enter();
+                }
+                else
+                {
+                    printw("What?\n");
+                }
+
+                printw("> ");
+                kbd_input.clear();
+            }
+            else
+            {
+                kbd_input.push_back(input_char);
+            }
+        }
+    }
+
+    // Clean up.
+    for (auto& room : area)
+    {
+        for (auto& action : room->actions)
+        {
+            delete action.second;
+        }
+        delete room;
+    }
+
+    endwin();
+}
+
+/*
+static std::vector<Room *> create_area()
+{
     // TODO: Generate areas from an external source, e.g. an SQLite DB-file.
     std::vector<Room *> area;
 
     auto arrival = new Room();
     arrival->desc = "It's dark. You try to blink, but it makes no difference.";
 
-    auto move = new Output("You try to move, but you bump your nose into some glass that\n"
-                            "prevents you from moving any further.\n");
+    auto move = new Output("You try to move, but you bump your nose into some "
+                           "glass that\n prevents you from moving any further.\n");
 
     arrival->actions["north"] = move;
     arrival->actions["south"] = move;
     arrival->actions["east"] = move;
     arrival->actions["west"] = move;
 
-    auto search = new Output("You search around. Your arms feel numb. You find nothing.\n");
+    auto search = new Output("You search around. Your arms feel numb. "
+                             "You find nothing.\n");
 
     arrival->actions["search"] = search;
 
@@ -38,18 +154,19 @@ static std::vector<Room *> create_area()
 
     arrival->actions["say"] = say;
 
-    auto knock = new Output("You manage to knock on the glass despite the lack of space.\n"
-                            "Nothing happens.\n");
+    auto knock = new Output("You manage to knock on the glass despite the lack "
+                            "of space. Nothing happens.\n");
 
     arrival->actions["knock"] = knock;
 
-    auto help = new Output("You cry for help, but the voice you hear sounds strange and rough.\n"
-                           "After several attemps, the word 'help' makes sense.\n"
-                           "\n"
-                           "You hear a beeping sound, followed by a click.\n"
-                           "\n"
-                           "The door in front of you changes and fresh air rushes to your face.\n"
-                           "Relieved, you fall on your knees and cough several times.\n");
+    auto help = new Output(
+        "You cry for help, but the voice you hear sounds strange and rough.\n"
+        "After several attemps, you utter the word.\n"
+        "\n"
+        "You hear a beeping sound, followed by a click.\n"
+        "\n"
+        "The door in front of you changes and fresh air rushes to your face.\n"
+        "Relieved, you fall on your knees and cough several times.\n");
 
     arrival->actions["help"] = help;
     arrival->actions["scream"] = help;
@@ -60,6 +177,7 @@ static std::vector<Room *> create_area()
 
     return area;
 }
+*/
 
 /*
 static std::vector<Room *> create_area_2()
@@ -101,87 +219,3 @@ static std::vector<Room *> create_area_2()
     return area;
 }
 */
-
-static void init_ncurses()
-{
-    initscr();
-
-    // When we reach the bottom of the screen, the existing text
-    // should scroll upwards, just like on a real terminal.
-    scrollok(stdscr, TRUE);
-
-    // Enable non-blocking input.
-    nodelay(stdscr, TRUE);
-
-    start_color();
-    init_pair(1, COLOR_RED, COLOR_BLACK);
-    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
-}
-
-int main(void)
-{
-    std::string kbd_input;
-    std::vector<Room *> area = create_area();
-    Room *currentRoom = area[0];
-
-    init_ncurses();
-
-    currentRoom->display();
-    printw("> ");
-
-    auto start = std::chrono::steady_clock::now();
-    std::chrono::seconds tick(2); // Each tick should last two seconds.
-
-    while (true)
-    {
-        // Handle all timed events, such as combat.
-        if ((std::chrono::steady_clock::now() - start) > tick)
-        {
-            start = std::chrono::steady_clock::now();
-            //printw("Tick! Tock!\n");
-        }
-
-        int input_char;
-
-        // Handle user input without blocking.
-        if ((input_char = getch()) != ERR)
-        {
-            if (input_char == '\n')
-            {
-                if (currentRoom->actions.find(kbd_input) != currentRoom->actions.end())
-                {
-                    // Perform the requested action.
-                    currentRoom->actions[kbd_input]->exec();
-                }
-                else if (currentRoom->exits.find(kbd_input) != currentRoom->exits.end())
-                {
-                    currentRoom = currentRoom->exits[kbd_input];
-                    currentRoom->display();
-                } else
-                {
-                    printw("What?\n");
-                }
-
-                printw("> ");
-                kbd_input.clear();
-            } else
-            {
-            kbd_input.push_back(input_char);
-            }
-        }
-    }
-
-    // Clean up.
-    for (auto& room : area)
-    {
-        for (auto& action : room->actions)
-        {
-            delete action.second;
-        }
-        delete room;
-    }
-
-    endwin();
-
-    return 0;
-}

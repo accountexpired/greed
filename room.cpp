@@ -8,6 +8,30 @@
 #include "creature.h"
 #include "room.h"
 
+ void Room::perform_action(const std::string& kbd_input, bool& valid_input) const
+{
+    if (actions.find(kbd_input) != actions.end())
+    {
+        valid_input = true;
+        actions.at(kbd_input)->exec();
+    }
+}
+
+Room* Room::next_room(const std::string& kbd_input, bool& valid_input)
+{
+    if (exits.find(kbd_input) == exits.end())
+    {
+        return this;
+    }
+    valid_input = true;
+    return exits.at(kbd_input);
+}
+
+void Room::enter() const
+{
+    display();
+}
+
 void Room::display() const
 {
     printw("%s\n", desc.c_str());

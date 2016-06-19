@@ -9,10 +9,9 @@ Output::Output()
 
 Output::~Output()
 {
-    std::cout << "Destroying blink!" << std::endl;
 }
 
-Output::Output(std::string newOutput) : message(newOutput)
+Output::Output(std::string new_output) : message(new_output)
 {
 }
 

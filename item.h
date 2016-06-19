@@ -1,7 +1,7 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-class Item {
+class Item final {
 public:
     std::string name;
     std::string desc;

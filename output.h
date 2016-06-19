@@ -9,7 +9,7 @@ class Output final : public Action {
 public:
     Output();
     ~Output();
-    explicit Output(std::string newOutput);
+    explicit Output(std::string new_output);
     void exec() const;
 private:
     std::string message;
