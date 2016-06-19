@@ -8,7 +8,7 @@
 #include "creature.h"
 #include "room.h"
 
- void Room::perform_action(const std::string& kbd_input, bool& valid_input) const
+void Room::perform_action(const std::string& kbd_input, bool& valid_input) const
 {
     if (actions.find(kbd_input) != actions.end())
     {
