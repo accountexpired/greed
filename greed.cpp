@@ -12,6 +12,7 @@
 #include "creature.h"
 #include "room.h"
 #include "output.h"
+#include "capsule.h"
 
 static std::vector<Room *> create_area()
 {
@@ -20,11 +21,18 @@ static std::vector<Room *> create_area()
     // This is a special room. Regardless of what you type here,
     // it'll be considered a valid action. When you've performed
     // a certain number of actions, you'll leave the room.
-    auto capsule = new Room();
+    auto capsule = new Capsule();
     capsule->desc = "It's dark. You try to blink, but nothing happens.";
 
     auto medical_bay1 = new Room();
     medical_bay1->desc = "You find yourself in the medical bay of a large vessel.";
+
+    capsule->exits["unnamed"] = medical_bay1;
+
+    auto tussy = std::make_unique<Creature>();
+    tussy->name = "A zombie named Tussy.";
+
+    medical_bay1->creatures.push_back(std::move(tussy));
 
     auto medical_bay2 = new Room();
     medical_bay2->desc = "You find yourself in the medical bay of a large vessel.\n"
@@ -61,7 +69,7 @@ int main()
 {
     std::string kbd_input;
     std::vector<Room *> area = create_area();
-    Room *current_room = area[0];
+    Room* current_room = area[0];
 
     init_ncurses();
 
@@ -88,18 +96,21 @@ int main()
             if (input_char == '\n')
             {
                 bool valid_input = false;
+                const Room* previous_room = current_room;
 
                 // Execute action.
-                current_room->perform_action(kbd_input, valid_input);
+                current_room = current_room->perform_action(kbd_input, valid_input);
 
                 // Enter room.
                 current_room = current_room->next_room(kbd_input, valid_input);
 
-                if (valid_input)
+                if (previous_room != current_room)
                 {
                     current_room->enter();
                 }
-                else
+
+                // The input was neither a valid exit or action.
+                if (!valid_input)
                 {
                     printw("What?\n");
                 }

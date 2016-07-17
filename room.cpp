@@ -8,13 +8,18 @@
 #include "creature.h"
 #include "room.h"
 
-void Room::perform_action(const std::string& kbd_input, bool& valid_input) const
+Room::~Room()
+{
+}
+
+Room* Room::perform_action(const std::string& kbd_input, bool& valid_input)
 {
     if (actions.find(kbd_input) != actions.end())
     {
         valid_input = true;
         actions.at(kbd_input)->exec();
     }
+    return this;
 }
 
 Room* Room::next_room(const std::string& kbd_input, bool& valid_input)
@@ -59,14 +64,16 @@ void Room::display() const
 
     auto exit = exits.begin();
 
-    if (exit == exits.end())
+    if (exit == exits.end() || exit->first == "unnamed")
     {
         printw("None.");
-    } else
+    }
+    else
     {
         for (; exit != exits.end(); ++exit)
         {
             printw("%s", exit->first.c_str());
+
             if (std::distance(exit, exits.end()) > 1)
             {
                 printw(", ");

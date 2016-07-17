@@ -19,4 +19,3 @@ void Output::exec() const
 {
     printw(message.c_str());
 }
-

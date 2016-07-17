@@ -1,20 +1,29 @@
 #ifndef ROOM_H
 #define ROOM_H
 
+#include <map>
+#include <memory>
+#include <vector>
+
+#include "creature.h"
+#include "item.h"
 #include "action.h"
 
-class Room final {
+class Room {
 private:
     void display() const;
 
 public:
+    virtual ~Room();
+
     std::string desc;
     std::map<std::string, Room *> exits;
     std::map<std::string, Action *> actions;
     std::vector<std::unique_ptr<Item>> items;
     std::vector<std::unique_ptr<Creature>> creatures;
 
-    void perform_action(const std::string& kbd_input, bool& valid_input) const;
+    virtual Room* perform_action(const std::string& kbd_input,
+                                 bool& valid_input);
     Room* next_room(const std::string& kbd_input, bool& valid_input);
     void enter() const;
 };
