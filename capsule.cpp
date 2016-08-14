@@ -3,14 +3,6 @@
 
 #include "capsule.h"
 
-namespace
-{
-namespace Local
-{
-    const int min_attempts = 5;
-}
-}
-
 Room* Capsule::perform_action(const std::string& kbd_input, bool& valid_input)
 {
     (void)kbd_input; // Silence warning.

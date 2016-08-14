@@ -14,37 +14,46 @@
 #include "output.h"
 #include "capsule.h"
 
-static std::vector<Room *> create_area()
+namespace {
+    namespace Local {
+        int tick_duration = 2;
+    }
+}
+
+static std::vector<std::unique_ptr<Room>> create_area()
 {
-    std::vector<Room *> area;
+    std::vector<std::unique_ptr<Room>> area;
 
     // This is a special room. Regardless of what you type here,
     // it'll be considered a valid action. When you've performed
     // a certain number of actions, you'll leave the room.
-    auto capsule = new Capsule();
+    auto capsule = std::make_unique<Capsule>();
     capsule->desc = "It's dark. You try to blink, but nothing happens.";
 
-    auto medical_bay1 = new Room();
+    auto medical_bay1 = std::make_unique<Room>();
     medical_bay1->desc = "You find yourself in the medical bay of a large vessel.";
 
-    capsule->exits["unnamed"] = medical_bay1;
+    capsule->exits["unnamed"] = medical_bay1.get();
 
     auto tussy = std::make_unique<Creature>();
     tussy->name = "A zombie named Tussy.";
 
     medical_bay1->creatures.push_back(std::move(tussy));
 
-    auto medical_bay2 = new Room();
+    auto medical_bay2 = std::make_unique<Room>();
     medical_bay2->desc = "You find yourself in the medical bay of a large vessel.\n"
                          "The wast hallway continues to the north of here.";
 
-    medical_bay1->exits["n"] = medical_bay2;
-    medical_bay2->exits["s"] = medical_bay1;
+    auto search = std::make_unique<Output>("You search the room and notice some scratches on the walls.\n");
+    medical_bay2->actions["search"] = std::move(search);
+
+    medical_bay1->exits["n"] = medical_bay2.get();
+    medical_bay2->exits["s"] = medical_bay1.get();
 
     // Add rooms to area.
-    area.push_back(capsule);
-    area.push_back(medical_bay1);
-    area.push_back(medical_bay2);
+    area.push_back(std::move(capsule));
+    area.push_back(std::move(medical_bay1));
+    area.push_back(std::move(medical_bay2));
 
     return area;
 }
@@ -68,8 +77,8 @@ static void init_ncurses()
 int main()
 {
     std::string kbd_input;
-    std::vector<Room *> area = create_area();
-    Room* current_room = area[0];
+    auto area = create_area();
+    auto current_room = area.front().get();
 
     init_ncurses();
 
@@ -77,7 +86,7 @@ int main()
     printw("> ");
 
     auto start = std::chrono::steady_clock::now();
-    std::chrono::seconds tick(2); // Each tick should last two seconds.
+    std::chrono::seconds tick(Local::tick_duration);
 
     while (true)
     {
@@ -96,7 +105,8 @@ int main()
             if (input_char == '\n')
             {
                 bool valid_input = false;
-                const Room* previous_room = current_room;
+                //const auto& previous_room = current_room;
+                const auto previous_room = current_room;
 
                 // Execute action.
                 current_room = current_room->perform_action(kbd_input, valid_input);
@@ -123,16 +133,6 @@ int main()
                 kbd_input.push_back(input_char);
             }
         }
-    }
-
-    // Clean up.
-    for (auto& room : area)
-    {
-        for (auto& action : room->actions)
-        {
-            delete action.second;
-        }
-        delete room;
     }
 
     endwin();

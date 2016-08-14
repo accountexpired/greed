@@ -18,7 +18,7 @@ public:
 
     std::string desc;
     std::map<std::string, Room *> exits;
-    std::map<std::string, Action *> actions;
+    std::map<std::string, std::unique_ptr<Action>> actions;
     std::vector<std::unique_ptr<Item>> items;
     std::vector<std::unique_ptr<Creature>> creatures;
 
@@ -29,4 +29,3 @@ public:
 };
 
 #endif
-
