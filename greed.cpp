@@ -35,10 +35,10 @@ static std::vector<std::unique_ptr<Room>> create_area()
 
     capsule->exits["unnamed"] = medical_bay1.get();
 
-    auto tussy = std::make_unique<Creature>();
-    tussy->name = "A zombie named Tussy.";
+    auto zombie = std::make_unique<Creature>();
+    zombie->name = "A zombie.";
 
-    medical_bay1->creatures.push_back(std::move(tussy));
+    medical_bay1->creatures.push_back(std::move(zombie));
 
     auto medical_bay2 = std::make_unique<Room>();
     medical_bay2->desc = "You find yourself in the medical bay of a large vessel.\n"
@@ -137,96 +137,3 @@ int main()
 
     endwin();
 }
-
-/*
-static std::vector<Room *> create_area()
-{
-    // TODO: Generate areas from an external source, e.g. an SQLite DB-file.
-    std::vector<Room *> area;
-
-    auto arrival = new Room();
-    arrival->desc = "It's dark. You try to blink, but it makes no difference.";
-
-    auto move = new Output("You try to move, but you bump your nose into some "
-                           "glass that\n prevents you from moving any further.\n");
-
-    arrival->actions["north"] = move;
-    arrival->actions["south"] = move;
-    arrival->actions["east"] = move;
-    arrival->actions["west"] = move;
-
-    auto search = new Output("You search around. Your arms feel numb. "
-                             "You find nothing.\n");
-
-    arrival->actions["search"] = search;
-
-    auto say = new Output("You emit a sound that resembles a wounded animal.\n"
-                          "No eligible word comes out.\n");
-
-    arrival->actions["say"] = say;
-
-    auto knock = new Output("You manage to knock on the glass despite the lack "
-                            "of space. Nothing happens.\n");
-
-    arrival->actions["knock"] = knock;
-
-    auto help = new Output(
-        "You cry for help, but the voice you hear sounds strange and rough.\n"
-        "After several attemps, you utter the word.\n"
-        "\n"
-        "You hear a beeping sound, followed by a click.\n"
-        "\n"
-        "The door in front of you changes and fresh air rushes to your face.\n"
-        "Relieved, you fall on your knees and cough several times.\n");
-
-    arrival->actions["help"] = help;
-    arrival->actions["scream"] = help;
-    arrival->actions["yell"] = help;
-
-    // Add rooms to the area.
-    area.push_back(arrival);
-
-    return area;
-}
-*/
-
-/*
-static std::vector<Room *> create_area_2()
-{
-    // TODO: Generate areas from an external source, e.g. an SQLite DB-file.
-    std::vector<Room *> area;
-
-    auto sword = std::make_unique<Item>();
-    sword->name = "A golden sword.";
-
-    auto boat = std::make_unique<Item>();
-    boat->name = "A boat.";
-
-    auto arrival = new Room();
-    arrival->desc = "At a mountain summit. The wind is howling.";
-    arrival->items.push_back(std::move(sword));
-    arrival->items.push_back(std::move(boat));
-
-    auto blink = new Output("You blink, and a snake slithers by!\n");
-
-    auto wolf = std::make_unique<Creature>();
-    wolf->name = "A fierce wolf.";
-
-    auto tussy = std::make_unique<Creature>();
-    tussy->name = "It's Tusselita.";
-
-    auto forest = new Room();
-    forest->desc = "Lots of trees here.";
-    forest->creatures.push_back(std::move(wolf));
-    forest->creatures.push_back(std::move(tussy));
-    forest->actions["blink"] = blink;
-
-    // Set room exits.
-    area.push_back(arrival);
-    forest->exits["up"] = arrival;
-    area.push_back(forest);
-    arrival->exits["down"] = forest;
-
-    return area;
-}
-*/

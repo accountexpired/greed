@@ -17,7 +17,7 @@ public:
     virtual ~Room();
 
     std::string desc;
-    std::map<std::string, Room *> exits;
+    std::map<std::string, Room *> exits; // A room can exist even when no one owns it.
     std::map<std::string, std::unique_ptr<Action>> actions;
     std::vector<std::unique_ptr<Item>> items;
     std::vector<std::unique_ptr<Creature>> creatures;
